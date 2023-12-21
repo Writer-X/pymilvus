@@ -174,6 +174,12 @@ class TestSearchResult:
                     float16_vector=os.urandom(32),
                 ),
             ),
+            schema_pb2.FieldData(type=DataType.BFLOAT16_VECTOR, field_name="bfloat16_vector_field", field_id=116,
+                vectors=schema_pb2.VectorField(
+                    dim=16,
+                    bfloat16_vector=os.urandom(32),
+                ),
+            ),
         ]
         result = schema_pb2.SearchResultData(
             fields_data=fields_data,

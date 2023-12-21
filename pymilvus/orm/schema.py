@@ -289,6 +289,7 @@ class FieldSchema:
             DataType.BINARY_VECTOR,
             DataType.FLOAT_VECTOR,
             DataType.FLOAT16_VECTOR,
+            DataType.BFLOAT16_VECTOR,
             DataType.VARCHAR,
             DataType.ARRAY,
         ):
@@ -498,11 +499,14 @@ def prepare_fields_from_dataframe(df: pd.DataFrame):
                     DataType.BINARY_VECTOR,
                     DataType.FLOAT_VECTOR,
                     DataType.FLOAT16_VECTOR,
+                    DataType.BFLOAT16_VECTOR
                 ):
                     vector_type_params = {}
                     if new_dtype == DataType.BINARY_VECTOR:
                         vector_type_params["dim"] = len(values[i]) * 8
                     elif new_dtype == DataType.FLOAT16_VECTOR:
+                        vector_type_params["dim"] = len(values[i]) / 2
+                    elif new_dtype == DataType.BFLOAT16_VECTOR:
                         vector_type_params["dim"] = len(values[i]) / 2
                     else:
                         vector_type_params["dim"] = len(values[i])
@@ -522,7 +526,7 @@ def check_schema(schema: CollectionSchema):
         raise SchemaNotReadyException(message=ExceptionsMessage.EmptySchema)
     vector_fields = []
     for field in schema.fields:
-        if field.dtype in (DataType.FLOAT_VECTOR, DataType.BINARY_VECTOR, DataType.FLOAT16_VECTOR):
+        if field.dtype in (DataType.FLOAT_VECTOR, DataType.BINARY_VECTOR, DataType.FLOAT16_VECTOR, DataType.BFLOAT16_VECTOR):
             vector_fields.append(field.name)
     if len(vector_fields) < 1:
         raise SchemaNotReadyException(message=ExceptionsMessage.NoVector)

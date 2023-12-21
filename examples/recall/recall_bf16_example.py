@@ -2,6 +2,7 @@ import h5py
 import numpy as np
 import time 
 import random
+from bfloat16 import bfloat16
 
 from pymilvus import (
     connections,
@@ -11,19 +12,8 @@ from pymilvus import (
     utility
 )
 
-# def gen_fp16_vectors(num, dim):
-#     raw_vectors = []
-#     fp16_vectors = []
-#     for _ in range(num):
-#         raw_vector = [random.random() for _ in range(dim)]
-#         raw_vectors.append(raw_vector)
-#         fp16_vector = np.array(raw_vector, dtype=np.float16).view(np.uint8).tolist()
-#         fp16_vectors.append(bytes(fp16_vector))
-#     return raw_vectors, fp16_vectors
-# _, vectors = gen_fp16_vectors(10000, 128)
-
 dim = 128
-collection_name = "siftFp16"
+collection_name = "siftBf16"
 
 # configure milvus hostname and port
 print(f"\nCreate connection...")
@@ -41,7 +31,7 @@ if(collection_list.count(collection_name)):
     print("drop")
 
 field1 = FieldSchema(name="id", dtype=DataType.INT64, description="int64", is_primary=True)
-field2 = FieldSchema(name = "vec", dtype = DataType.FLOAT16_VECTOR, description = "float16 vector", dim = dim, is_primary = False)
+field2 = FieldSchema(name = "vec", dtype = DataType.BFLOAT16_VECTOR, description = "bfloat16 vector", dim = dim, is_primary = False)
 schema = CollectionSchema(fields = [field1, field2], description = "sift decription")
 collection = Collection(name = collection_name, data = None, schema = schema, shards_num = 2)
 
@@ -70,7 +60,7 @@ for t in range(block_num):
     entities = [
             [i for i in range(counter, counter + block_size)],
             # [vectors[i] for i in range(counter, counter + block_size)]
-            [bytes(vec.astype(np.float16).view(np.uint8).tolist()) for vec in data[counter: counter + block_size]]
+            [bytes(vec.astype(bfloat16).view(np.uint8).tolist()) for vec in data[counter: counter + block_size]]
             ]
     insert_result =  collection.insert(entities)
     print(insert_result)
@@ -108,7 +98,7 @@ collection.load()
 
 # search
 print(f"\nSearch...")
-res = collection.search([bytes(vec.astype(np.float16).view(np.uint8).tolist()) for vec in test[0:10]],
+res = collection.search([bytes(vec.astype(bfloat16).view(np.uint8).tolist()) for vec in test[0:10]],
                         "vec", {"metric_type": "L2"}, limit=100)
 # res = collection.search([vectors[i] for i in range(10)],
 #                         "vec", {"metric_type": "L2"}, limit=100)

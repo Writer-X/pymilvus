@@ -73,13 +73,19 @@ print(collection.num_entities)
 
 # create index
 print(f"\nCreate index...")
+# collection.create_index(field_name="vec",
+#         index_params={'index_type': 'IVF_FLAT',
+#             'metric_type': 'L2',
+#             'params': {
+#                 'nlist': 128
+#                 }})
 collection.create_index(field_name="vec",
-        index_params={'index_type': 'IVF_FLAT',
+        index_params={'index_type': 'HNSW',  
             'metric_type': 'L2',
             'params': {
-                'nlist': 128
+                'M': 4,
+                'efConstruction': 100
                 }})
-
 # load
 print(f"\nLoad...")
 collection.load()

@@ -21,6 +21,7 @@ from pymilvus.grpc_gen import common_pb2
 import pytest
 import pandas as pd
 import numpy as np
+from bfloat16 import bfloat16
 
 
 @pytest.mark.xfail
@@ -84,7 +85,8 @@ class TestTypes:
             np.int8(1),
             np.int16(1),
             [np.int8(1)],
-            [np.float16(1.0)]
+            [np.float16(1.0)],
+            [bfloat16(1.0)]
         ]
 
         wants = [
@@ -100,6 +102,7 @@ class TestTypes:
             DataType.INT16,
             DataType.FLOAT_VECTOR,
             DataType.FLOAT16_VECTOR,
+            DataType.BFLOAT16_VECTOR,
         ]
 
         actual = []
